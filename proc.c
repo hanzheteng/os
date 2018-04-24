@@ -324,7 +324,10 @@ waitpid(int pid, int *status, int options)
   struct proc *p;
   int havekids, pid_matched;//zx012
   struct proc *curproc = myproc();
-  
+  if (curproc->pid == pid){
+	*status = -1;
+	return -1;
+}  
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.

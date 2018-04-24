@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 int exitWait(void) {
     int pid, ret_pid, exit_status;
     int i;
-  
+   
     // use this part to test exit(int status) and wait(int* status)
     printf(1, "Step 1: testing exit(int status) and wait(int* status):\n");
 
@@ -32,8 +32,8 @@ int exitWait(void) {
         pid = fork();
         if (pid == 0) { // only the child executed this code
             if (i == 0) {
-                printf(1, " - This is child with PID# %d and I will exit with status %d\n", getpid(), 0);
-                exit(0);
+                printf(1, " - This is child with PID# %d and I will exit with status %d\n", getpid(), 65537);
+                exit(65537);
             } else {
                 printf(1, " - This is child with PID# %d and I will exit with status %d\n" ,getpid(), -1);
                 exit(-1);
@@ -54,7 +54,8 @@ int waitPid(void){
     int i;
     int pid_a[5]={0, 0, 0, 0, 0};
     // use this part to test wait(int pid, int* status, int options)
-
+    int mypid;
+    mypid = getpid();
     printf(1, "Step 2: testing waitpid(int pid, int* status, int options):\n");
 
     for (i = 0; i <5; i++) {
@@ -87,6 +88,10 @@ int waitPid(void){
     printf(1, " - This is the parent: Now waiting for child with PID# %d\n",pid_a[4]);
     ret_pid = waitpid(pid_a[4], &exit_status, 0);
     printf(1, " - This is the parent: Child# %d has exited with status %d\n",ret_pid, exit_status);
-      
+    sleep(5);
+    printf(1, " - This is the parent: Now waiting for child with PID########## %d\n",mypid);
+    ret_pid = waitpid(mypid, &exit_status, 0);
+    printf(1, " - This is the parent: Child# %d has exited with status %d\n",ret_pid, exit_status);
+    
     return 0;
 }
