@@ -16,14 +16,32 @@ sys_fork(void)
 int
 sys_exit(void)
 {
-  exit();
+  int status; //zx012
+  if(argint(0,&status) < 0)
+     return -1;//zx012
+  //exit();zx012
+  exit(status);
   return 0;  // not reached
+  //return proc->status zx012
 }
 
 int
-sys_wait(void)
+sys_wait(void)//zx012
 {
-  return wait();
+  int *status;
+  argptr(0, (char **)&status, sizeof(int*));
+  return wait(status);
+}
+int
+sys_waitpid(void)//zx012
+{
+  int pid;
+  int *status;
+  int options;
+  argint(0, &pid);
+  argptr(1, (char **)&status, sizeof(int*));
+  argint(2, &options);
+  return waitpid(pid, status, options);
 }
 
 int

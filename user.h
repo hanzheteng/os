@@ -3,8 +3,8 @@ struct rtcdate;
 
 // system calls
 int fork(void);
-int exit(void) __attribute__((noreturn));
-int wait(void);
+int exit(int) __attribute__((noreturn));   //zx012  what is attribute?
+int wait(int*);//zx012 
 int pipe(int*);
 int write(int, void*, int);
 int read(int, void*, int);
@@ -23,6 +23,7 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int waitpid(int pid, int *status, int options);//zx012 
 
 // ulib.c
 int stat(char*, struct stat*);

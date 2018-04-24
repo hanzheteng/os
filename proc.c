@@ -224,13 +224,15 @@ fork(void)
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
+//zx012
 void
-exit(void)
+exit(int status)  //zx012
 {
   struct proc *curproc = myproc();
   struct proc *p;
   int fd;
-
+  curproc->exit_status = status;    //zx012
+  //cprintf("process %d exits, status is %d\n", curproc->pid, curproc->exit_status);//zx012
   if(curproc == initproc)
     panic("init exiting");
 
@@ -270,7 +272,7 @@ exit(void)
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
-wait(void)
+wait(int *status) //zx012
 {
   struct proc *p;
   int havekids, pid;
@@ -295,6 +297,10 @@ wait(void)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
+	if(status){//zx012
+	  *status = p->exit_status;
+	  //cprintf("kid %d of parent %d exits with status %d", p->pid, curproc->pid, *status);
+        }
         release(&ptable.lock);
         return pid;
       }
@@ -303,12 +309,69 @@ wait(void)
     // No point waiting if we don't have any children.
     if(!havekids || curproc->killed){
       release(&ptable.lock);
+      if(status)//zx012
+	*status = -1;
       return -1;
     }
 
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+}
+int
+waitpid(int pid, int *status, int options)
+{
+  struct proc *p;
+  int havekids, pid_matched;//zx012
+  struct proc *curproc = myproc();
+  
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if((p->parent != curproc)||(p->pid != pid))
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        // Found one.
+        pid_matched = p->pid;//zx012
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+	if(status){//zx012
+	  *status = p->exit_status;
+	  //cprintf("kid %d of parent %d exits with status %d", p->pid, curproc->pid, *status);
+	}
+        release(&ptable.lock);
+        return pid_matched;//zx012
+      }
+    }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      if(status)//zx012
+	*status = -1;
+      return -1;
+    }
+
+    switch(options){//zx012
+	case 0://wait for child 
+		sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+		break;
+	
+	case 1://do not wait
+		release(&ptable.lock);
+		return pid;
+    }
+  }
+
 }
 
 //PAGEBREAK: 42
