@@ -325,6 +325,7 @@ waitpid(int pid, int *status, int options)
   int havekids, pid_matched;//zx012
   struct proc *curproc = myproc();
   if (curproc->pid == pid){
+	cprintf(" - Error: don't wait yourself!!!\n");
 	*status = -1;
 	return -1;
 }  
@@ -333,7 +334,7 @@ waitpid(int pid, int *status, int options)
     // Scan through table looking for exited children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if((p->parent != curproc)||(p->pid != pid))
+      if(p->pid != pid)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
