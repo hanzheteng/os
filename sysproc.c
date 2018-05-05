@@ -14,15 +14,23 @@ sys_fork(void)
 }
 
 int
+sys_setpriority(void)
+{
+  int priority;
+  argint(0, &priority);
+  return setpriority(priority);
+}
+
+int
 sys_exit(void)
 {
   int status; //zx012
   if(argint(0,&status) < 0)
-     return -1;//zx012
-  //exit();zx012
+     return -1; //zx012
+  //exit();
   exit(status);
   return 0;  // not reached
-  //return proc->status zx012
+  //return proc->status //zx012
 }
 
 int
@@ -32,6 +40,7 @@ sys_wait(void)//zx012
   argptr(0, (char **)&status, sizeof(int*));
   return wait(status);
 }
+
 int
 sys_waitpid(void)//zx012
 {

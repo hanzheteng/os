@@ -221,10 +221,19 @@ fork(void)
   return pid;
 }
 
+// Set the priority of the current process to a given number.
+int
+setpriority(int num)  //hz012
+{
+  struct proc *curproc = myproc();
+  num = num<0? 0: num>31? 31:num; //hz012
+  curproc->priority = num;
+  return 0;
+}
+
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
-//zx012
 void
 exit(int status)  //zx012
 {
