@@ -200,7 +200,7 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
-  np->priority = curproc->priority;
+  np->priority = curproc->priority;//inherit zx012
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -365,6 +365,9 @@ waitpid(int pid, int *status, int options)
         release(&ptable.lock);
         return pid_matched;//zx012
       }
+      //donate priority 
+      else if(curproc->priority < p->priority)
+        p->priority = curproc->priority;
     }
 
     // No point waiting if we don't have any children.
