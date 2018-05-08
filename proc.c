@@ -232,6 +232,39 @@ setpriority(int num)  //hz012
   return 0;
 }
 
+int
+getpriority(int pid)
+{
+  struct proc *p;
+  int priority = -1;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid != pid)
+      continue;
+    priority = p->priority;
+    break;
+  }
+  release(&ptable.lock);
+  return priority;  // -1 means failure    
+}
+
+int
+getticks(int pid)
+{
+  struct proc *p;
+  int ticks = -1;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid != pid)
+      continue;
+    ticks = p->ticks;
+    break;
+  }
+  release(&ptable.lock);
+  return ticks;  // -1 means failure    
+}
+
+
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.

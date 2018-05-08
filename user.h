@@ -24,7 +24,9 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int waitpid(int pid, int *status, int options);//zx012 
-int setpriority(int);
+int setpriority(int num);
+int getpriority(int pid);
+int getticks(int pid);
 
 // ulib.c
 int stat(char*, struct stat*);

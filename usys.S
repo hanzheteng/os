@@ -31,4 +31,6 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 SYSCALL(waitpid)
 SYSCALL(setpriority)
+SYSCALL(getpriority)
+SYSCALL(getticks)
 

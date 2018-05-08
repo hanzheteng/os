@@ -22,6 +22,22 @@ sys_setpriority(void)
 }
 
 int
+sys_getpriority(void)
+{
+  int pid;
+  argint(0, &pid);
+  return getpriority(pid);
+}
+
+int
+sys_getticks(void)
+{
+  int pid;
+  argint(0, &pid);
+  return getticks(pid);
+}
+
+int
 sys_exit(void)
 {
   int status; //zx012
