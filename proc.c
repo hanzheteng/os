@@ -88,7 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->priority = 10;
+  p->priority = 128;
 
   release(&ptable.lock);
 
@@ -227,7 +227,7 @@ int
 setpriority(int num)  //hz012
 {
   struct proc *curproc = myproc();
-  num = num<0? 0: num>31? 31:num; //hz012
+  num = num<0? 0: num>255? 255:num; //hz012
   curproc->priority = num;
   return 0;
 }
@@ -477,7 +477,7 @@ scheduler(void)
           p2->priority--;
         else 
           p2->priority++;
-        p2->priority = p2->priority < 0 ? 0 : p2->priority > 31 ? 31: p2->priority;
+        p2->priority = p2->priority < 0 ? 0 : p2->priority > 255 ? 255: p2->priority;
       }
 
       switchkvm();

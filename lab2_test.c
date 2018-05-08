@@ -20,8 +20,8 @@ int PScheduler(void){
     int i,j,k;
   
     printf(1, "Testing the priority scheduler and setpriority system call:\n");
-    printf(1, "Assuming that the priorities range between 0 to 31\n");
-    printf(1, "0 is the highest priority. All processes have a default priority of 10\n");
+    printf(1, "Assuming that the priorities range between 0 to 255\n");
+    printf(1, "0 is the highest priority. All processes have a default priority of 128\n");
     printf(1, " - The parent processes will switch to priority 0\n");
     setpriority(0); // Use your own setpriority interface
     for (i = 0; i < 3; i++) {
@@ -29,14 +29,15 @@ int PScheduler(void){
         if (pid > 0) {
             continue;
         } else if ( pid == 0) {
-            printf(1, " - Hello! this is child# %d and I will change my priority to %d \n", getpid(), 30-10*i);
-            setpriority(30-10*i); // Use your own setpriority interface
+            printf(1, " - Hello! this is child# %d and I will change my priority to %d \n", getpid(), 240-60*i);
+            setpriority(240-60*i); // Use your own setpriority interface
             for (j = 0; j < 50000; j++) {
                 for(k = 0; k < 10000; k++) {
                     asm("nop"); 
                 }
             }
-            printf(1, " - Child #%d with priority %d has finished! \n", getpid(), 30-10*i);		
+            printf(1, " - Child #%d with priority %d has finished! \n", getpid(), 240-60*i);	
+            printf(1, " - The process with pid %d has a priority of %d after aging.\n", getpid(), getpriority(getpid()));
             exit(0);
         } else {
             printf(2," \n Error fork() \n");
@@ -46,12 +47,11 @@ int PScheduler(void){
 
     if(pid > 0) {
         for (i = 0; i < 3; i++) {
+            printf(1, " - The process with pid %d has a priority of %d right now.\n", 3, getpriority(3));
+            printf(1, " - The process with pid %d has a priority of %d right now.\n", 4, getpriority(4));
+            printf(1, " - The process with pid %d has a priority of %d right now.\n", 5, getpriority(5));
             ret_pid = wait(&exit_status);
             printf(1, " - This is the parent: child with PID# %d has finished with status %d \n", ret_pid, exit_status); 
-            printf(1, " - The process with pid %d has a priority of %d right now.", 3, getpriority(3));
-            printf(1, " - The process with pid %d has a priority of %d right now.", 4, getpriority(4));
-            printf(1, " - The process with pid %d has a priority of %d right now.", 5, getpriority(5));
-            printf(1, " - The process with pid %d has a priority of %d right now.", 6, getpriority(6));
         }
         printf(1, " - If processes with highest priority finished first then its correct. \n");
     }
