@@ -469,6 +469,19 @@ scheduler(void)
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
+      // aging implementation
+      acquire(&ptable.lock);
+      for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
+        if(p2->state != RUNNABLE)
+          continue;
+        if(p2 != p)
+          p2->priority--;
+        else 
+          p2->priority++;
+        p2->priority = p2->priority < 0 ? 0 : p2->priority > 31 ? 31: p2->priority;
+      }
+      release(&ptable.lock);
+
       switchkvm();
 
       // Process is done running for now.
