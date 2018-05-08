@@ -25,8 +25,8 @@ int PScheduler(void){
     printf(1, " - The parent processes will switch to priority 0\n");
     setpriority(0); // Use your own setpriority interface
     for (i = 0; i < 3; i++) {
-	pid = fork();
-	if (pid > 0) {
+        pid = fork();
+        if (pid > 0) {
             continue;
         } else if ( pid == 0) {
             printf(1, " - Hello! this is child# %d and I will change my priority to %d \n", getpid(), 30-10*i);
@@ -47,7 +47,11 @@ int PScheduler(void){
     if(pid > 0) {
         for (i = 0; i < 3; i++) {
             ret_pid = wait(&exit_status);
-            printf(1, " - This is the parent: child with PID# %d has finished with status %d \n", ret_pid, exit_status);
+            printf(1, " - This is the parent: child with PID# %d has finished with status %d \n", ret_pid, exit_status); 
+            printf(1, " - The process with pid %d has a priority of %d right now.", 3, getpriority(3));
+            printf(1, " - The process with pid %d has a priority of %d right now.", 4, getpriority(4));
+            printf(1, " - The process with pid %d has a priority of %d right now.", 5, getpriority(5));
+            printf(1, " - The process with pid %d has a priority of %d right now.", 6, getpriority(6));
         }
         printf(1, " - If processes with highest priority finished first then its correct. \n");
     }
