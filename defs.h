@@ -115,10 +115,11 @@ void            procdump(void);
 void            scheduler(void) __attribute__((noreturn));
 void            sched(void);
 void            setproc(struct proc*);
+int             setpriority(int);
 void            sleep(void*, struct spinlock*);
 void            userinit(void);
 int             wait(int *status);//zx012
-int				waitpid(int pid, int *status, int options);//zx012
+int             waitpid(int pid, int *status, int options);//zx012
 void            wakeup(void*);
 void            yield(void);
 

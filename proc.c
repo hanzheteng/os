@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 10;
 
   release(&ptable.lock);
 
@@ -199,7 +200,7 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
-
+  np->priority = curproc->priority;
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -306,9 +307,9 @@ wait(int *status) //zx012
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-	if(status){//zx012
-	  *status = p->exit_status;
-	  //cprintf("kid %d of parent %d exits with status %d", p->pid, curproc->pid, *status);
+        if(status){//zx012
+          *status = p->exit_status;
+          //cprintf("kid %d of parent %d exits with status %d", p->pid, curproc->pid, *status);
         }
         release(&ptable.lock);
         return pid;
@@ -319,7 +320,7 @@ wait(int *status) //zx012
     if(!havekids || curproc->killed){
       release(&ptable.lock);
       if(status)//zx012
-	*status = -1;
+        *status = -1;
       return -1;
     }
 
@@ -334,9 +335,9 @@ waitpid(int pid, int *status, int options)
   int havekids, pid_matched;//zx012
   struct proc *curproc = myproc();
   if (curproc->pid == pid){
-	cprintf(" - Error: don't wait yourself!!!\n");
-	*status = -1;
-	return -1;
+    cprintf(" - Error: don't wait yourself!!!\n");
+    *status = -1;
+    return -1;
 }  
   acquire(&ptable.lock);
   for(;;){
@@ -357,10 +358,10 @@ waitpid(int pid, int *status, int options)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-	if(status){//zx012
-	  *status = p->exit_status;
-	  //cprintf("kid %d of parent %d exits with status %d", p->pid, curproc->pid, *status);
-	}
+        if(status){//zx012
+          *status = p->exit_status;
+          //cprintf("kid %d of parent %d exits with status %d", p->pid, curproc->pid, *status);
+        }
         release(&ptable.lock);
         return pid_matched;//zx012
       }
@@ -370,18 +371,18 @@ waitpid(int pid, int *status, int options)
     if(!havekids || curproc->killed){
       release(&ptable.lock);
       if(status)//zx012
-	*status = -1;
+        *status = -1;
       return -1;
     }
 
     switch(options){//zx012
-	case 0://wait for child 
-		sleep(curproc, &ptable.lock);  //DOC: wait-sleep
-		break;
-	
-	case 1://do not wait
-		release(&ptable.lock);
-		return pid;
+      case 0://wait for child 
+        sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+        break;
+
+      case 1://do not wait
+        release(&ptable.lock);
+        return pid;
     }
   }
 
@@ -399,6 +400,8 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *p2;
+  struct proc *p_max;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -412,9 +415,19 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
+      // Round Robin still works if we don't have higher priority process
+      p_max = p;
+      for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
+        if(p2->state != RUNNABLE)
+          continue;
+        if(p2->priority < p_max->priority)
+          p_max = p2;
+      }
+
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
+      p = p_max;
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
