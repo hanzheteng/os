@@ -89,6 +89,9 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->priority = 128;
+  p->ticks = 0;
+  p->tocks = 0;
+
 
   release(&ptable.lock);
 
@@ -200,7 +203,11 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+
   np->priority = curproc->priority;//inherit zx012
+  np->ticks = 0;
+  np->tocks = 0;
+
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -485,6 +492,7 @@ scheduler(void)
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
+
       // aging implementation
       for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
         if(p2->state != RUNNABLE)
@@ -495,6 +503,17 @@ scheduler(void)
           p2->priority++;
         p2->priority = p2->priority < 0 ? 0 : p2->priority > 255 ? 255: p2->priority;
       }
+
+      // save tiktok info on each time slice
+      for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
+        if(p2->state != RUNNABLE)
+          continue;
+        if(p2 != p)
+          p2->tocks++;
+        else 
+          p2->ticks++;
+      }
+
 
       switchkvm();
 
