@@ -256,37 +256,18 @@ getpriority(int pid)
 }
 
 int
-getticks(int pid)
+gettiktok(int* tik, int* tok)
 {
-  struct proc *p;
-  int ticks = -1;
-  acquire(&ptable.lock);
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->pid != pid)
-      continue;
-    ticks = p->ticks;
-    break;
-  }
-  release(&ptable.lock);
-  return ticks;  // -1 means failure    
+  struct proc *curproc = myproc();
+  if(tik)
+    *tik = curproc->ticks;
+  if(tok)
+    *tok = curproc->tocks;
+  if(tik && tok)
+    return curproc->pid;
+  else
+    return -1;    
 }
-
-int
-gettocks(int pid)
-{
-  struct proc *p;
-  int tocks = -1;
-  acquire(&ptable.lock);
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->pid != pid)
-      continue;
-    tocks = p->tocks;
-    break;
-  }
-  release(&ptable.lock);
-  return tocks;  // -1 means failure    
-}
-
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state

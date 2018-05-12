@@ -26,8 +26,7 @@ int uptime(void);
 int waitpid(int pid, int *status, int options);//zx012 
 int setpriority(int num);
 int getpriority(int pid);
-int getticks(int pid);
-int gettocks(int pid);
+int gettiktok(int* tik, int* tok);
 
 // ulib.c
 int stat(char*, struct stat*);

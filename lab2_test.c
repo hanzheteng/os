@@ -3,17 +3,48 @@
 
 int PScheduler(void);
 int test_donation(void);
-
+int test_ticktock(void);
 int main(int argc, char *argv[])
 {
     if (atoi(argv[1]) == 1)
       PScheduler();
     else if (atoi(argv[1]) == 2)
       test_donation();
+    else if (atoi(argv[1]) == 3)
+      test_ticktock();
 
 
     exit(0);
 }
+
+int test_ticktock(void){
+    int pid, exit_status;
+    int k, j;
+    int id, tick, tock; 
+    pid = fork();
+    if(pid == 0){
+      for(j = 0;j < 50000; j++){
+        for(k = 0; k < 10000; k++){
+         asm("nop"); 
+        }
+      }
+      id = getpid();
+      tick = getticks(id);
+      tock = gettocks(id);
+      printf(1, " - proc #%d ticks = %d, tocks = %d\n", id, , gettocks());
+      //printf(1, " - proc #%d tocks = %d\n", getpid(), gettocks(getpid()));
+      exit(0);
+    }
+    if(pid > 0){
+      setpriority(10);
+      waitpid(pid, &exit_status, 0);
+    }
+    return 0;
+
+    
+
+}
+
 
 int test_donation(void){
  

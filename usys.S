@@ -32,6 +32,5 @@ SYSCALL(uptime)
 SYSCALL(waitpid)
 SYSCALL(setpriority)
 SYSCALL(getpriority)
-SYSCALL(getticks)
-SYSCALL(gettocks)
+SYSCALL(gettiktok)
 

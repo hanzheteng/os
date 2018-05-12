@@ -30,22 +30,15 @@ sys_getpriority(void)
 }
 
 int
-sys_getticks(void)
+sys_gettiktok(void)
 {
-  int pid;
-  argint(0, &pid);
-  return getticks(pid);
+  int* tik;
+  int* tok;
+  argptr(0, (char **)&tik, sizeof(int*));
+  argptr(1, (char **)&tok, sizeof(int*));
+  return gettiktok(tik, tok);
 }
 
-int
-sys_gettocks(void)
-{
-  int pid;
-  argint(0, &pid);
-  return gettocks(pid);
-}
-
-int
 sys_exit(void)
 {
   int status; //zx012

@@ -23,6 +23,5 @@
 #define SYS_waitpid 22
 #define SYS_setpriority 23
 #define SYS_getpriority 24
-#define SYS_getticks 25
-#define SYS_gettocks 26
+#define SYS_gettiktok 25
 
