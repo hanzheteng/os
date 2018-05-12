@@ -38,6 +38,14 @@ sys_getticks(void)
 }
 
 int
+sys_gettocks(void)
+{
+  int pid;
+  argint(0, &pid);
+  return gettocks(pid);
+}
+
+int
 sys_exit(void)
 {
   int status; //zx012
