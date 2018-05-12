@@ -109,6 +109,7 @@ int             fork(void);
 int             growproc(int);
 int             getpriority(int);
 int             getticks(int);
+int             gettocks(int);
 int             kill(int);
 struct cpu*     mycpu(void);
 struct proc*    myproc();

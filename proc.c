@@ -264,6 +264,22 @@ getticks(int pid)
   return ticks;  // -1 means failure    
 }
 
+int
+gettocks(int pid)
+{
+  struct proc *p;
+  int tocks = -1;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid != pid)
+      continue;
+    tocks = p->tocks;
+    break;
+  }
+  release(&ptable.lock);
+  return tocks;  // -1 means failure    
+}
+
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state

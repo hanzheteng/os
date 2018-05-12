@@ -33,4 +33,5 @@ SYSCALL(waitpid)
 SYSCALL(setpriority)
 SYSCALL(getpriority)
 SYSCALL(getticks)
+SYSCALL(gettocks)
 
