@@ -399,8 +399,10 @@ waitpid(int pid, int *status, int options)
         return pid_matched;//zx012
       }
       //donate priority 
-      else if(curproc->priority < p->priority)
+      else if(curproc->priority < p->priority){
         p->priority = curproc->priority;
+        cprintf("priority %d of curproc donated to proc #%d!\n", curproc->priority, p->pid);
+      }
     }
 
     // No point waiting if we don't have any children.

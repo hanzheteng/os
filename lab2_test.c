@@ -2,12 +2,40 @@
 #include "user.h"
 
 int PScheduler(void);
+int test_donation(void);
 
 int main(int argc, char *argv[])
 {
-    PScheduler();
+    if (atoi(argv[1]) == 1)
+      PScheduler();
+    else if (atoi(argv[1]) == 2)
+      test_donation();
+
 
     exit(0);
+}
+
+int test_donation(void){
+ 
+    int pid, exit_status;
+    
+    printf(1, " - default priority is %d\n", getpriority(getpid()));
+    pid = fork();
+    if(pid == 0){
+      /*for(j = 0;j < 50000; j++){
+        for(k = 0; k < 10000; k++){
+         asm("nop"); 
+        }
+      }*/
+      printf(1, " - child #%d exit with priority %d\n", getpid(), getpriority(getpid()));
+      exit(0);
+    }
+    if(pid > 0){
+      setpriority(10);
+      printf(1, "- this is parent #%d with priority%d\n", getpid(), getpriority(getpid()));
+      waitpid(pid, &exit_status, 0);
+    }
+    return 0;
 }    
       
 int PScheduler(void){
