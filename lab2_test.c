@@ -12,37 +12,40 @@ int main(int argc, char *argv[])
       test_donation();
     else if (atoi(argv[1]) == 3)
       test_ticktock();
-
-
     exit(0);
 }
 
 int test_ticktock(void){
-    int pid, exit_status;
-    int k, j;
-    int id, tick, tock; 
-    pid = fork();
-    if(pid == 0){
-      for(j = 0;j < 50000; j++){
-        for(k = 0; k < 10000; k++){
-         asm("nop"); 
+    int i,j,k;
+    int id, pid, ret_pid, exit_status, tik, tok; 
+    printf(1, " - Test performance: tik represents running time, tok represents waiting time.\n");
+    for (i = 0; i < 3; i++) {
+        pid = fork();
+        if (pid > 0) {
+            continue;
+        } else if ( pid == 0) {
+            for (j = 0; j < 50000; j++) {
+                for(k = 0; k < 10000; k++) {
+                    asm("nop"); 
+                }
+            }
+            id = gettiktok(&tik, &tok);
+            printf(1, " - proc #%d ticks = %d, tocks = %d\n", id, tik, tok);
+            exit(0);
+        } else {
+            printf(2," \n Error fork() \n");
+            exit(-1);
         }
-      }
-      id = getpid();
-      tick = getticks(id);
-      tock = gettocks(id);
-      printf(1, " - proc #%d ticks = %d, tocks = %d\n", id, , gettocks());
-      //printf(1, " - proc #%d tocks = %d\n", getpid(), gettocks(getpid()));
-      exit(0);
     }
-    if(pid > 0){
-      setpriority(10);
-      waitpid(pid, &exit_status, 0);
+
+    if(pid > 0) {
+        for (i = 0; i < 3; i++) {
+            ret_pid = wait(&exit_status);
+            printf(1, " - This is the parent: child with PID# %d has finished with status %d \n", ret_pid, exit_status); 
+        }
     }
+	
     return 0;
-
-    
-
 }
 
 

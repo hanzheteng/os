@@ -39,6 +39,7 @@ sys_gettiktok(void)
   return gettiktok(tik, tok);
 }
 
+int
 sys_exit(void)
 {
   int status; //zx012
