@@ -64,7 +64,8 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
   pte_t *pte;
 
   a = (char*)PGROUNDDOWN((uint)va);
-  last = (char*)PGROUNDDOWN(((uint)va) + size - 1);
+  //last = (char*)PGROUNDDOWN(((uint)va) + size - 1);
+  last = (char*)PGROUNDDOWN(((uint)va) - size - 1);//zx012
   for(;;){
     if((pte = walkpgdir(pgdir, a, 1)) == 0)
       return -1;
@@ -73,8 +74,10 @@ mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm)
     *pte = pa | perm | PTE_P;
     if(a == last)
       break;
-    a += PGSIZE;
-    pa += PGSIZE;
+    //a += PGSIZE;
+    //pa += PGSIZE;
+    a -= PGSIZE;//zx012
+    pa -= PGSIZE;
   }
   return 0;
 }
@@ -226,11 +229,27 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 
   if(newsz >= KERNBASE)
     return 0;
-  if(newsz < oldsz)
+  if(newsz > oldsz)//zx012
     return oldsz;
 
   a = PGROUNDUP(oldsz);
-  for(; a < newsz; a += PGSIZE){
+ /* for(; a < newsz; a += PGSIZE){
+    mem = kalloc();
+    if(mem == 0){
+      cprintf("allocuvm out of memory\n");
+      deallocuvm(pgdir, newsz, oldsz);
+      return 0;
+    }
+    memset(mem, 0, PGSIZE);
+    if(mappages(pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0){
+      cprintf("allocuvm out of memory (2)\n");
+      deallocuvm(pgdir, newsz, oldsz);
+      kfree(mem);
+      return 0;
+    }
+  }*/
+  //zx012 begin
+  for(; a > newsz; a -= PGSIZE){//do we need to map guard page here??
     mem = kalloc();
     if(mem == 0){
       cprintf("allocuvm out of memory\n");
@@ -245,6 +264,7 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
       return 0;
     }
   }
+  //zx012 end
   return newsz;
 }
 
