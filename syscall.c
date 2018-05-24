@@ -17,8 +17,6 @@
 int
 fetchint(uint addr, int *ip)
 {
-  //struct proc *curproc = myproc();
-
   if(addr >= KERNBASE || addr+4 > KERNBASE)//zx012
   //if(addr >= curproc->stack_top || addr+4 > curproc->stack_top)//zx012
     return -1;
