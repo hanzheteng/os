@@ -318,7 +318,7 @@ copyuvm(pde_t *pgdir, uint sz, uint stack_top)//zx012
   pde_t *d;
   pte_t *pte;
   uint pa, i, flags;
-  struct proc *curproc = myproc();
+  //struct proc *curproc = myproc();
   char *mem;
 
   if((d = setupkvm()) == 0)
@@ -336,7 +336,8 @@ copyuvm(pde_t *pgdir, uint sz, uint stack_top)//zx012
     if(mappages(d, (void*)i, PGSIZE, V2P(mem), flags) < 0)
       goto bad;
   }
-  for(i = curproc->stack_top; i < KERNBASE - 1; i += PGSIZE){//zx012
+  // copy stack to child  
+  for(i = PGROUNDDOWN(stack_top); i < KERNBASE; i += PGSIZE){//zx012
     if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
       panic("copyuvm: pte should exist");
     if(!(*pte & PTE_P))

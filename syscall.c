@@ -17,7 +17,9 @@
 int
 fetchint(uint addr, int *ip)
 {
+  //struct proc *curproc = myproc();
   if(addr >= KERNBASE || addr+4 > KERNBASE)//zx012
+  //cprintf("the stack top is %x\n", curproc->stack_top);
   //if(addr >= curproc->stack_top || addr+4 > curproc->stack_top)//zx012
     return -1;
   *ip = *(int*)(addr);

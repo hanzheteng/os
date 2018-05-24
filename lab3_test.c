@@ -6,6 +6,14 @@ int test(int n) {
     return x;
 }
 
+int test2(int n) { 
+    int a[1100] ={0};
+    a[1099]=n;
+    printf(1, "Test 2: array a is at %p\n", a);
+    printf(1, "Test 2: array a is at %p\n", &a[1099]);
+    return a[1099];
+}
+
 int main(int argc, char *argv[]) {
     printf(1, "####################################################\n");
     printf(1, "# This program tests the correctness of your lab #3\n");
@@ -21,8 +29,8 @@ int main(int argc, char *argv[]) {
     wait();
 
     printf(1, "Test 2: Stack growth test.\n");
-    // Write your own test
-
+    
+    printf(1, "Test 2: trap handled return %d\n", test2(2));
     exit();
 }
 

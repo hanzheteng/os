@@ -36,6 +36,8 @@ idtinit(void)
 void
 trap(struct trapframe *tf)
 {
+ struct proc *curproc = myproc();//zx012
+
   if(tf->trapno == T_SYSCALL){
     if(myproc()->killed)
       exit();
@@ -46,6 +48,18 @@ trap(struct trapframe *tf)
     return;
   }
 
+  if(tf->trapno == T_PGFLT){
+    if(PGROUNDUP(rcr2()) != curproc->stack_top)//not sure zx012
+      goto HANDLER;
+    if((allocuvm(curproc->pgdir, curproc->stack_top - PGSIZE, curproc->stack_top)) == 0){//zx012
+      if(curproc->pgdir)
+      freevm(curproc->pgdir);
+    }
+  
+  return;
+  }
+
+HANDLER:
   switch(tf->trapno){
   case T_IRQ0 + IRQ_TIMER:
     if(cpuid() == 0){

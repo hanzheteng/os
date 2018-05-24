@@ -191,12 +191,15 @@ fork(void)
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz, curproc->stack_top)) == 0){
+    cprintf("copyuvm failed!!");//zx012
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
     return -1;
   }
+  //cprintf("copyuvm succeed!!!");//zx012
   np->sz = curproc->sz;
+  np->stack_top = curproc->stack_top;//zx012
   np->parent = curproc;
   *np->tf = *curproc->tf;
 
