@@ -64,11 +64,11 @@ exec(char *path, char **argv)
   // Make the first inaccessible.  Use the second as the user stack.
   //sz = PGROUNDUP(sz);
   //stack_top = PGROUNDUP(stack_top);//zx012
-  if((stack_top = allocuvm(pgdir, KERNBASE - 2 * PGSIZE, KERNBASE - PGSIZE)) == 0)//zx012
+  if((stack_top = allocuvm(pgdir, KERNBASE - 1 - PGSIZE, KERNBASE - 1)) == 0)//zx012
     goto bad;
-  stack_top -= PGSIZE;//zx012 
+  stack_top += 1 ;//zx012 
   //clearpteu(pgdir, (char*)(sz - 2*PGSIZE));//zx012
-  sp = KERNBASE - PGSIZE - 4;//zx012
+  sp = KERNBASE - 4;//zx012
 
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
