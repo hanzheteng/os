@@ -17,6 +17,9 @@ int test2(int n) {
 }
 
 int main(int argc, char *argv[]) {
+    int num = 1;
+    if(argc == 2)
+      num = atoi(argv[1]);
     printf(1, "####################################################\n");
     printf(1, "# This program tests the correctness of your lab #3\n");
     printf(1, "####################################################\n");
@@ -32,7 +35,7 @@ int main(int argc, char *argv[]) {
 
     printf(1, "Test 2: Stack growth test.\n");
     
-    printf(1, "Test 2: trap handled return %d\n", test2(100));
+    printf(1, "Test 2: trap handled return %d\n", test2(num));
     exit();
 }
 
