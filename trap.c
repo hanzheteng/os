@@ -49,14 +49,15 @@ trap(struct trapframe *tf)
   }
 
   if(tf->trapno == T_PGFLT){
-    if(PGROUNDUP(rcr2()) != curproc->stack_top)//not sure zx012
-      goto HANDLER;
-    if((allocuvm(curproc->pgdir, curproc->stack_top - PGSIZE, curproc->stack_top)) == 0){//zx012
+    if(PGROUNDUP(rcr2()) != curproc->stack_top) //zx012
+      goto HANDLER; //can only grow one page at a time
+    if((allocuvm(curproc->pgdir, curproc->stack_top - PGSIZE, curproc->stack_top)) == 0){
       if(curproc->pgdir)
       freevm(curproc->pgdir);
     }
-  
-  return;
+    else
+      curproc->stack_top -= PGSIZE;
+    return;
   }
 
 HANDLER:

@@ -7,11 +7,13 @@ int test(int n) {
 }
 
 int test2(int n) { 
-    int a[1100] ={0};
-    a[1099]=n;
+    int a[1013] = {0};
     printf(1, "Test 2: array a is at %p\n", a);
-    printf(1, "Test 2: array a is at %p\n", &a[1099]);
-    return a[1099];
+    //printf(1, "Test 2: the first value is %d\n", a[0]);
+    if(n<2)
+      return n;
+    else
+      return test2(n-1)+1;
 }
 
 int main(int argc, char *argv[]) {
@@ -30,7 +32,7 @@ int main(int argc, char *argv[]) {
 
     printf(1, "Test 2: Stack growth test.\n");
     
-    printf(1, "Test 2: trap handled return %d\n", test2(2));
+    printf(1, "Test 2: trap handled return %d\n", test2(100));
     exit();
 }
 

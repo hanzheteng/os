@@ -12,7 +12,8 @@ exec(char *path, char **argv)
 {
   char *s, *last;
   int i, off;
-  uint argc, sz, stack_top, sp, ustack[3+MAXARG+1];
+  uint argc, sz, sp, ustack[3+MAXARG+1];
+  uint stack_top; //hz012
   struct elfhdr elf;
   struct inode *ip;
   struct proghdr ph;
@@ -63,12 +64,17 @@ exec(char *path, char **argv)
   // Allocate two pages at the next page boundary.
   // Make the first inaccessible.  Use the second as the user stack.
   //sz = PGROUNDUP(sz);
-  stack_top = PGROUNDUP(stack_top+1);//zx012
+  //if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
+  //  goto bad;
+  //clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
+  //sp = sz;
+
+  // Allocate pages for our new stack layout -- //hz012
   if((stack_top = allocuvm(pgdir, KERNBASE - PGSIZE, KERNBASE - 1)) == 0)//zx012
     goto bad;
   stack_top -= PGSIZE - 1;//zx012 
-  //clearpteu(pgdir, (char*)(sz - 2*PGSIZE));//zx012
   sp = KERNBASE - 4;//zx012
+
 
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
