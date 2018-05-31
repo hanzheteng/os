@@ -29,41 +29,40 @@ void shminit() {
 }
 
 char *
-shm_map(pde_t *pgdir, uint sz, char *mem)
+shm_alloc(pde_t *pgdir, uint sz)
 {
+  char *mem;
   uint a;
   a = PGROUNDUP(sz);
-  if(mappages(pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0){
-    cprintf("allocuvm out of memory (2)\n");
-    //kfree(mem);
-    return 0;
-  }
-  return (char*)a;
-}
-
-char *
-shm_alloc(pde_t *pgdir, uint sz, char *mem)
-{
   mem = kalloc(); //would not return 0 since max # of shm is 64 
   if(mem == 0){
     cprintf("allocuvm out of memory\n");
     return 0;
   }
   memset(mem, 0, PGSIZE);
-  return shm_map(pgdir, sz, mem);
+  if(mappages(pgdir, (char*)a, PGSIZE, V2P(mem), PTE_W|PTE_U) < 0){
+    cprintf("allocuvm out of memory (2)\n");
+    //kfree(mem);
+    return 0;
+  }
+  return mem;
 }
 
 
 int shm_open(int id, char **pointer) {
   int i;
-  char *mem = 0;
   int exist = 0;
   struct proc *curproc = myproc();
   acquire(&(shm_table.lock));
 
   for(i=0; i<64; i++){
     if(shm_table.shm_pages[i].id == id){
-      *pointer = shm_map(curproc->pgdir, curproc->sz, shm_table.shm_pages[i].frame); 
+      if(mappages(curproc->pgdir, (char*)curproc->sz, PGSIZE, V2P(shm_table.shm_pages[i].frame), PTE_W|PTE_U) < 0){ 
+        cprintf("allocuvm out of memory (2)\n");
+        //kfree(mem);
+        return 0;
+      }     
+      *pointer = (char*)curproc->sz;
       shm_table.shm_pages[i].refcnt += 1;
       curproc->sz = PGROUNDUP(curproc->sz) + PGSIZE; 
       exist = 1;
@@ -75,9 +74,9 @@ int shm_open(int id, char **pointer) {
       if(shm_table.shm_pages[i].id != 0)
         continue;
       shm_table.shm_pages[i].id = id; // should assign the given id
-      *pointer = shm_alloc(curproc->pgdir, curproc->sz, mem);
-      shm_table.shm_pages[i].frame = mem;
+      shm_table.shm_pages[i].frame = shm_alloc(curproc->pgdir, curproc->sz);
       shm_table.shm_pages[i].refcnt = 1;
+      *pointer = (char*)curproc->sz;
       curproc->sz = PGROUNDUP(curproc->sz) + PGSIZE;
       break;
     }
