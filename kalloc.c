@@ -87,8 +87,10 @@ kalloc(void)
   if(kmem.use_lock)
     acquire(&kmem.lock);
   r = kmem.freelist;
+  //cprintf("kmem.freelist is %x\n", kmem.freelist);//zx012
   if(r)
     kmem.freelist = r->next;
+    //cprintf("r->next is %x\n", r->next);//zx012
   if(kmem.use_lock)
     release(&kmem.lock);
   return (char*)r;

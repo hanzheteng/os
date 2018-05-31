@@ -6,6 +6,7 @@
 #include "mmu.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "uspinlock.h"
 
 struct {
   struct spinlock lock;
@@ -34,9 +35,9 @@ alloc_shm(pde_t *pgdir, uint oldsz, uint newsz)
   if(newsz >= KERNBASE)
     return 0;
   if(newsz < oldsz)
-    return oldsz;
+    return (char *)oldsz;
   uint a;
-  a = PGROUNDUP(OLDSZ); 
+  a = PGROUNDUP(oldsz); 
   mem = kalloc();
   if(mem == 0){
     cprintf("allocuvm out of memory(1)\n");
@@ -52,30 +53,33 @@ alloc_shm(pde_t *pgdir, uint oldsz, uint newsz)
 int shm_open(int id, char **pointer) {
   struct proc *curproc = myproc();
   uint sz;
-  int i;
-  char *mem;
+  int i, j;
+//char *mem;
 //you write this
   sz = PGROUNDUP(curproc->sz);
+  initlock(&(shm_table.lock), "lock 1");
   acquire(&(shm_table.lock));
   for (i = 0; i< 64; i++) {
     if(shm_table.shm_pages[i].id == id){
-      if(mappages(curproc->pgdir, (char*)sz, PGSIZE, v2p(shm_table.shm_pages[i].frame), PTE_W|PTE_U) < 0)      {
+     if(mappages(curproc->pgdir, (char*)sz, PGSIZE, V2P(shm_table.shm_pages[i].frame), PTE_W|PTE_U) < 0)      {
         cprintf("mappages failed \n");
+        release(&(shm_table.lock));
         return 0;
       }
       shm_table.shm_pages[i].refcnt++;
-      *pointer = (char *)curproc->sz; 
-      curproc->sz += PGSIZE;
+      *pointer = (char *)sz; 
+      //curproc->sz += PGSIZE;
+      curproc->sz = sz + PGSIZE;
+      release(&(shm_table.lock));
       return 0;
     }
   }
-  for(i = 0, i < 64; i++){
-    if(shm_table.shm_pages[i].id == 0){
-      shm_table.shm_pages[i].id = id;
-      shm_table.shm_pages[i].refcnt ++;
-      shm_table.shm_pages[i].frame = alloc_shm(curproc->pgdir, sz, sz + PGSIZE); 
-      curproc->sz += PGSIZE;
-      shm_table.shm_pages[i].refcnt++;
+  for(j = 0; j < 64; j++){
+    if(shm_table.shm_pages[j].id == 0){
+      shm_table.shm_pages[j].id = id;
+      shm_table.shm_pages[j].frame = alloc_shm(curproc->pgdir, sz, sz + PGSIZE); 
+      curproc->sz = sz + PGSIZE;
+      shm_table.shm_pages[j].refcnt++;
       *pointer = (char *)sz;
       break;
     }
@@ -90,12 +94,20 @@ int shm_open(int id, char **pointer) {
 
 int shm_close(int id) {
 //you write this too!
-  if(shm_table.shm_pages[i].id == id){
-    if(shm_table.shm_pages[i].refcnt > 0)
-      shm_table.shm_pages[i].refcnt--;
-    else
-      shm_table.shm_pages[i].refcnt = 0;
+  int i;
+  initlock(&(shm_table.lock), "lock 2");
+  acquire(&(shm_table.lock));
+  for(i = 0; i < 64; i++){
+    if(shm_table.shm_pages[i].id == id){
+      if(shm_table.shm_pages[i].refcnt > 1)
+        shm_table.shm_pages[i].refcnt--;
+      else{
+        shm_table.shm_pages[i].refcnt = 0;
+        shm_table.shm_pages[i].id = 0;
+        shm_table.shm_pages[i].frame = 0;
+      }
+    }
   }
-
+  release(&(shm_table.lock));
   return 0; //added to remove compiler warning -- you should decide what to return
 }
